@@ -1,0 +1,45 @@
+{
+  "payload": {
+    "export": "run",
+    "target": "purchase.product-discount.run",
+    "input": {
+      "cart": {
+        "lines": [
+          {
+            "id": "gid://shopify/CartLine/1",
+            "quantity": 5,
+            "merchandise": {
+              "__typename": "ProductVariant",
+              "id": "gid://shopify/ProductVariant/1",
+              "minQuantity": {
+                "value": "3"
+              },
+              "discountPercent": {
+                "value": "15"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "output": {
+      "discountApplicationStrategy": "FIRST",
+      "discounts": [
+        {
+          "targets": [
+            {
+              "cartLine": {
+                "id": "gid://shopify/CartLine/1"
+              }
+            }
+          ],
+          "value": {
+            "percentage": {
+              "value": "15"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

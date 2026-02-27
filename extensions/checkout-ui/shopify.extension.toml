@@ -6,7 +6,7 @@
 api_version = "2026-01"
 
 [[extensions]]
-name = "Checkout Banner"
+name = "Dynamic Banner"
 handle = "checkout-ui"
 type = "ui_extension"
 uid = "fddfc370-27c7-c30f-4ee0-a927194e2accadefd40c"

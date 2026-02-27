@@ -1,0 +1,22 @@
+query RunInput {
+  cart {
+    lines {
+      id
+      quantity
+      merchandise {
+        ... on ProductVariant {
+          id
+          minQuantity: metafield(namespace: "custom", key: "min_item") {
+            value
+          }
+          discountPercent: metafield(
+            namespace: "custom"
+            key: "discount_percent"
+          ) {
+            value
+          }
+        }
+      }
+    }
+  }
+}
