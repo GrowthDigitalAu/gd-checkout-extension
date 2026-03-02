@@ -43,8 +43,9 @@ export function run(input) {
           discounts.push({
             targets: [
               {
-                cartLine: {
-                  id: line.id,
+                productVariant: {
+                  id: variant.id,
+                  quantity: line.quantity
                 },
               },
             ],
@@ -52,7 +53,8 @@ export function run(input) {
               percentage: {
                 value: discountPercent.toString()
               }
-            }
+            },
+            message: "Dynamic Metafield Discount"
           });
         }
       }

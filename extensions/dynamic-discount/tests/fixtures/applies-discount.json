@@ -28,8 +28,9 @@
         {
           "targets": [
             {
-              "cartLine": {
-                "id": "gid://shopify/CartLine/1"
+              "productVariant": {
+                "id": "gid://shopify/ProductVariant/1",
+                "quantity": 5
               }
             }
           ],
@@ -37,7 +38,8 @@
             "percentage": {
               "value": "15"
             }
-          }
+          },
+          "message": "Dynamic Metafield Discount"
         }
       ]
     }

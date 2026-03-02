@@ -61,7 +61,7 @@ describe("Vanilla JS dynamic-discount functionality", () => {
     };
     const result = run(input);
     expect(result.discounts.length).toBe(1);
-    expect(result.discounts[0].targets[0].cartLine.id).toBe("gid://shopify/CartLine/1");
+    expect(result.discounts[0].targets[0].productVariant.id).toBe("gid://shopify/ProductVariant/1");
     expect(result.discounts[0].value.percentage.value).toBe("15");
   });
 });
