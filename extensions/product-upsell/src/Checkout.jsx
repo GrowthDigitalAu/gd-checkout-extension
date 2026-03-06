@@ -129,7 +129,7 @@ function Extension() {
             <s-box key={product.id} padding="base" border="base" border-radius="base">
               <s-stack direction="inline" gap="base" block-alignment="center">
                 {/* Image — fixed 64×64 square */}
-                {imageUrl && (
+                {imageUrl ? (
                   <s-box blockSize="64px" inlineSize="64px" overflow="hidden">
                     <s-image
                       src={imageUrl}
@@ -140,6 +140,14 @@ function Extension() {
                       borderRadius="small"
                     />
                   </s-box>
+                ) : (
+                  <s-box
+                    blockSize="64px"
+                    inlineSize="64px"
+                    background="subdued"
+                    border-radius="small"
+                    padding="none"
+                  />
                 )}
 
                 {/* Title + Price — fixed width protects the inline layout from breaking */}
