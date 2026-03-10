@@ -127,10 +127,9 @@ function Extension() {
 
           return (
             <s-box key={product.id} padding="base" border="base" border-radius="base">
-              <s-stack direction="inline" gap="base" block-alignment="center" justifyContent="space-between">
-                {/* Image — fixed 64×64 square */}
-                {imageUrl ? (
-                  <s-box blockSize="64px" inlineSize="64px" overflow="hidden">
+              <s-grid gridTemplateColumns="64px 1fr auto" gap="base">
+                <s-box blockSize="64px">
+                  {imageUrl ? (
                     <s-image
                       src={imageUrl}
                       alt={imageAlt}
@@ -139,24 +138,20 @@ function Extension() {
                       objectFit="cover"
                       borderRadius="small"
                     />
-                  </s-box>
-                ) : (
-                  <s-box
-                    blockSize="64px"
-                    inlineSize="64px"
-                    background="subdued"
-                    border-radius="small"
-                    padding="none"
-                  />
-                )}
+                  ) : (
+                    <s-box
+                      blockSize="64px"
+                      background="subdued"
+                      borderRadius="small"
+                    />
+                  )}
+                </s-box>
 
-                {/* Title + Price — fixed width protects the inline layout from breaking */}
-                <s-stack direction="block" gap="none" inlineSize="140px">
+                <s-stack gap="none">
                   <s-text>{product.title}</s-text>
                   <s-text>{price}</s-text>
                 </s-stack>
 
-                {/* Add button — fits beautifully on the right */}
                 <s-button
                   variant="secondary"
                   loading={addingId === product.id}
@@ -165,7 +160,7 @@ function Extension() {
                 >
                   {isAdded ? 'Added' : 'Add'}
                 </s-button>
-              </s-stack>
+              </s-grid>
 
               {errors[product.id] && (
                 <s-text>{errors[product.id]}</s-text>
