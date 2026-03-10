@@ -127,7 +127,7 @@ function Extension() {
 
           return (
             <s-box key={product.id} padding="base" border="base" border-radius="base">
-              <s-stack direction="inline" gap="base" block-alignment="center">
+              <s-stack direction="inline" gap="base" block-alignment="center" justifyContent="space-between">
                 {/* Image — fixed 64×64 square */}
                 {imageUrl ? (
                   <s-box blockSize="64px" inlineSize="64px" overflow="hidden">
