@@ -1,7 +1,7 @@
 import '@shopify/ui-extensions/preact';
 import {render} from 'preact';
 import {useState, useEffect, useMemo} from 'preact/hooks';
-import {useCartLines, useApplyCartLinesChange} from '@shopify/ui-extensions/checkout/preact';
+import {useCartLines, useApplyCartLinesChange, useSettings} from '@shopify/ui-extensions/checkout/preact';
 
 // Export the extension
 export default () => {
@@ -11,6 +11,8 @@ export default () => {
 function Extension() {
   const cartLines = useCartLines();
   const applyCartLinesChange = useApplyCartLinesChange();
+  const settings = useSettings();
+  const heading = settings?.heading || 'Special Offers For You';
 
   const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -112,7 +114,7 @@ function Extension() {
   return (
     <s-box padding="base" border="base" border-radius="base">
       <s-stack direction="block" gap="base">
-        <s-heading>Special Offers For You</s-heading>
+        <s-heading>{heading}</s-heading>
 
         {upsellProducts.map((product) => {
           const variant = product.variants.nodes[0];
