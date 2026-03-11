@@ -3,7 +3,6 @@ import {render} from 'preact';
 import {useState, useEffect, useMemo} from 'preact/hooks';
 import {useCartLines, useApplyCartLinesChange, useSettings} from '@shopify/ui-extensions/checkout/preact';
 
-// Export the extension
 export default () => {
   render(<Extension />, document.body);
 };
@@ -16,6 +15,11 @@ function Extension() {
   const discountPercentage = settings?.discount_percentage || '10';
   const discountMessage = settings?.discount_message || 'Product Upsell Discount';
 
+  let selectedCollectionId = String(settings?.upsell_collection || '').trim();
+  if (selectedCollectionId && !selectedCollectionId.startsWith('gid://')) {
+    selectedCollectionId = `gid://shopify/Collection/${selectedCollectionId}`;
+  }
+
   const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [addingId, setAddingId] = useState(null);
@@ -24,27 +28,37 @@ function Extension() {
 
   useEffect(() => {
     async function fetchProducts() {
+      if (!selectedCollectionId) {
+        setAllProducts([]);
+        setLoading(false);
+        return;
+      }
+
       try {
         const response = await fetch('shopify:storefront/api/graphql.json', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
             query: `
-              query {
-                products(first: 10) {
-                  nodes {
-                    id
-                    title
-                    featuredImage {
-                      url
-                      altText
-                    }
-                    variants(first: 1) {
+              query getCollectionProducts($id: ID!) {
+                node(id: $id) {
+                  ... on Collection {
+                    products(first: 10) {
                       nodes {
                         id
-                        price {
-                          amount
-                          currencyCode
+                        title
+                        featuredImage {
+                          url
+                          altText
+                        }
+                        variants(first: 1) {
+                          nodes {
+                            id
+                            price {
+                              amount
+                              currencyCode
+                            }
+                          }
                         }
                       }
                     }
@@ -52,12 +66,16 @@ function Extension() {
                 }
               }
             `,
+            variables: {
+              id: selectedCollectionId,
+            },
           }),
         });
 
         if (response.ok) {
           const {data} = await response.json();
-          setAllProducts(data?.products?.nodes || []);
+          const collectionProducts = data?.node?.products?.nodes || [];
+          setAllProducts(collectionProducts);
         }
       } catch (err) {
         console.error('Failed to load products', err);
@@ -67,14 +85,13 @@ function Extension() {
     }
 
     fetchProducts();
-  }, []);
+  }, [selectedCollectionId]);
 
-  // Filter out products already in the cart — show up to 5
   const upsellProducts = useMemo(() => {
     const cartVariantIds = (cartLines || []).map((line) => line.merchandise.id);
     return allProducts
       .filter((prod) => {
-        const variant = prod.variants.nodes[0];
+        const variant = prod.variants?.nodes?.[0];
         return variant && !cartVariantIds.includes(variant.id);
       })
       .slice(0, 5);
@@ -88,12 +105,11 @@ function Extension() {
     );
   }
 
-  // Hide if nothing to upsell
   if (upsellProducts.length === 0) return null;
 
-  async function handleAdd(variant, productId) {
-    setAddingId(productId);
-    setErrors((prev) => ({...prev, [productId]: null}));
+  async function handleAdd(variant, targetId) {
+    setAddingId(targetId);
+    setErrors((prev) => ({...prev, [targetId]: null}));
     try {
       const upsellData = JSON.stringify({percent: discountPercentage, message: discountMessage});
       const result = await applyCartLinesChange({
@@ -103,13 +119,13 @@ function Extension() {
         attributes: [{key: '_upsell', value: upsellData}],
       });
       if (result.type === 'error') {
-        setErrors((prev) => ({...prev, [productId]: result.message}));
+        setErrors((prev) => ({...prev, [targetId]: result.message}));
       } else {
-        setAddedIds((prev) => [...prev, productId]);
+        setAddedIds((prev) => [...prev, targetId]);
       }
     } catch (err) {
       console.error(err);
-      setErrors((prev) => ({...prev, [productId]: 'Failed to add item.'}));
+      setErrors((prev) => ({...prev, [targetId]: 'Failed to add item.'}));
     } finally {
       setAddingId(null);
     }
@@ -121,7 +137,8 @@ function Extension() {
         <s-heading>{heading}</s-heading>
 
         {upsellProducts.map((product) => {
-          const variant = product.variants.nodes[0];
+          const variant = product.variants?.nodes?.[0];
+          if (!variant) return null;
           const imageUrl = product.featuredImage?.url;
           const imageAlt = product.featuredImage?.altText || product.title;
           

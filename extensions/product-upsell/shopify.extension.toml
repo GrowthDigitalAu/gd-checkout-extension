@@ -6,7 +6,7 @@
 api_version = "2026-01"
 
 [[extensions]]
-name = "product-upsell"
+name = "Product Upsell"
 handle = "product-upsell"
 type = "ui_extension"
 uid = "2ce614d3-6bf5-2fcf-3488-ea532585fb9c62868f10"
@@ -59,3 +59,9 @@ key = "discount_message"
 type = "single_line_text_field"
 name = "Discount Message"
 description = "Enter the text to show next to the discount tag in the cart"
+
+[[extensions.settings.fields]]
+key = "upsell_collection"
+type = "single_line_text_field"
+name = "Upsell Collection ID"
+description = "Paste the ID of the Collection to pull upsell products from (e.g. gid://shopify/Collection/12398471)"
