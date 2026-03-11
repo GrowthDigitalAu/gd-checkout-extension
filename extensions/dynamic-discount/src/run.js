@@ -12,7 +12,7 @@ import { DiscountApplicationStrategy } from "../generated/api";
  * @type {FunctionRunResult}
  */
 const EMPTY_DISCOUNT = {
-  discountApplicationStrategy: DiscountApplicationStrategy.First,
+  discountApplicationStrategy: DiscountApplicationStrategy.Maximum,
   discounts: [],
 };
 
@@ -23,12 +23,42 @@ const EMPTY_DISCOUNT = {
 export function run(input) {
   /** @type {import("../generated/api").Discount[]} */
   const discounts = [];
+  /** @type {import("../generated/api").Target[]} */
+  const upsellTargets = [];
+  let upsellPercentValue = 0;
+  let upsellMessageValue = "Product Upsell Discount";
 
   // Iterate over each cart line
   input.cart.lines.forEach((line) => {
     // Check if the merchandise is a ProductVariant
     if (line.merchandise.__typename === "ProductVariant") {
       const variant = line.merchandise;
+
+      // 1. Check for Upsell attribute
+      const upsellAttr = line.attribute?.value;
+      if (upsellAttr) {
+        let upsellPercent = 0;
+        let upsellMsg = "Product Upsell Discount";
+
+        try {
+          const parsed = JSON.parse(upsellAttr);
+          upsellPercent = parseFloat(parsed.percent);
+          if (parsed.message) upsellMsg = parsed.message;
+        } catch (e) {
+          // Fallback for earlier plain-text numbers
+          upsellPercent = parseFloat(upsellAttr);
+        }
+
+        if (!isNaN(upsellPercent) && upsellPercent > 0) {
+          upsellTargets.push({
+            cartLine: {
+              id: line.id
+            }
+          });
+          upsellPercentValue = upsellPercent;
+          upsellMessageValue = upsellMsg;
+        }
+      }
 
       const minQuantityStr = variant.minQuantity?.value;
       const discountPercentStr = variant.discountPercent?.value;
@@ -61,12 +91,24 @@ export function run(input) {
     }
   });
 
+  if (upsellTargets.length > 0) {
+    discounts.push({
+      targets: upsellTargets,
+      value: {
+        percentage: {
+          value: upsellPercentValue.toString()
+        }
+      },
+      message: upsellMessageValue
+    });
+  }
+
   if (discounts.length === 0) {
     return EMPTY_DISCOUNT;
   }
 
   return {
-    discountApplicationStrategy: DiscountApplicationStrategy.First,
+    discountApplicationStrategy: DiscountApplicationStrategy.Maximum,
     discounts: discounts,
   };
 }

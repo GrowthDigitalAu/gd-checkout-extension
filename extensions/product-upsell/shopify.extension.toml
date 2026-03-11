@@ -47,3 +47,15 @@ key = "heading"
 type = "single_line_text_field"
 name = "Heading"
 description = "Enter a heading for the upsell block"
+
+[[extensions.settings.fields]]
+key = "discount_percentage"
+type = "number_integer"
+name = "Discount Percentage"
+description = "Enter the discount percentage (e.g. 10)"
+
+[[extensions.settings.fields]]
+key = "discount_message"
+type = "single_line_text_field"
+name = "Discount Message"
+description = "Enter the text to show next to the discount tag in the cart"

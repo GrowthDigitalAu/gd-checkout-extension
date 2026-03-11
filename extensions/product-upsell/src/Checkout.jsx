@@ -13,6 +13,8 @@ function Extension() {
   const applyCartLinesChange = useApplyCartLinesChange();
   const settings = useSettings();
   const heading = settings?.heading || 'Special Offers For You';
+  const discountPercentage = settings?.discount_percentage || '10';
+  const discountMessage = settings?.discount_message || 'Product Upsell Discount';
 
   const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -93,10 +95,12 @@ function Extension() {
     setAddingId(productId);
     setErrors((prev) => ({...prev, [productId]: null}));
     try {
+      const upsellData = JSON.stringify({percent: discountPercentage, message: discountMessage});
       const result = await applyCartLinesChange({
         type: 'addCartLine',
         merchandiseId: variant.id,
         quantity: 1,
+        attributes: [{key: '_upsell', value: upsellData}],
       });
       if (result.type === 'error') {
         setErrors((prev) => ({...prev, [productId]: result.message}));
@@ -120,10 +124,20 @@ function Extension() {
           const variant = product.variants.nodes[0];
           const imageUrl = product.featuredImage?.url;
           const imageAlt = product.featuredImage?.altText || product.title;
-          const price = new Intl.NumberFormat(undefined, {
+          
+          const originalAmount = parseFloat(variant.price.amount);
+          const percent = parseFloat(String(discountPercentage)) || 0;
+          const discountedAmount = originalAmount - (originalAmount * (percent / 100));
+
+          const originalPrice = new Intl.NumberFormat(undefined, {
             style: 'currency',
             currency: variant.price.currencyCode,
-          }).format(variant.price.amount);
+          }).format(originalAmount);
+
+          const discountedPrice = new Intl.NumberFormat(undefined, {
+            style: 'currency',
+            currency: variant.price.currencyCode,
+          }).format(discountedAmount);
 
           const isAdded = addedIds.includes(product.id);
 
@@ -151,7 +165,10 @@ function Extension() {
 
                 <s-stack gap="none">
                   <s-text>{product.title}</s-text>
-                  <s-text>{price}</s-text>
+                  <s-stack direction="inline" gap="small-100">
+                    <s-text>{discountedPrice}</s-text>
+                    <s-text type="redundant">{originalPrice}</s-text>
+                  </s-stack>
                 </s-stack>
 
                 <s-button

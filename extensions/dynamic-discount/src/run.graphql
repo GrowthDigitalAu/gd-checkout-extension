@@ -3,6 +3,9 @@ query RunInput {
     lines {
       id
       quantity
+      attribute(key: "_upsell") {
+        value
+      }
       merchandise {
         __typename
         ... on ProductVariant {
