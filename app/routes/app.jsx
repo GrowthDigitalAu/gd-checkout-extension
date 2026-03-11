@@ -53,7 +53,7 @@ export const loader = async ({ request }) => {
       const data = await response.json();
       
       const discountExists = data?.data?.discountNodes?.edges?.some(
-        (edge) => edge.node.discount?.title === "Dynamic Metafield Discount"
+        (edge) => edge.node.discount?.title === "Dynamic Discount Function"
       );
 
       // 3. If it doesn't exist, create it automatically
@@ -74,7 +74,7 @@ export const loader = async ({ request }) => {
           {
             variables: {
               automaticAppDiscount: {
-                title: "Dynamic Metafield Discount",
+                title: "Dynamic Discount Function",
                 functionId: functionId,
                 startsAt: new Date().toISOString()
               }

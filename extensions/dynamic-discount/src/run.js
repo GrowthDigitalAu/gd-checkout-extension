@@ -84,7 +84,7 @@ export function run(input) {
                 value: discountPercent.toString()
               }
             },
-            message: "Dynamic Metafield Discount"
+            message: "Discount"
           });
         }
       }
